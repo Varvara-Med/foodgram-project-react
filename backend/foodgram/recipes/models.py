@@ -1,4 +1,4 @@
-from asyncio import constants
+from colorfield.fields import ColorField
 from django.db import models
 
 from users.models import User
@@ -13,17 +13,18 @@ class Tag(models.Model):
         max_length=50,
         unique=True,
     )
-    color = models.CharField(
-        'Цвет',
-        max_length=10,
-        unique=True,
+    color = ColorField(
+        format='hex',
+        verbose_name='Цвет'
     )
     slug = models.SlugField(
-        'Слаг',
+        max_length=200,
+        verbose_name='Идентификатор тега',
         unique=True,
     )
 
     class Meta:
+        verbose_name = 'Тег'
         verbose_name_plural = 'Тэги'
 
     def __str__(self):
