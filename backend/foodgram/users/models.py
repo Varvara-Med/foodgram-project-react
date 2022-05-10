@@ -7,7 +7,7 @@ from django.contrib.auth.hashers import make_password
 class UserManager(BaseUserManager):
     def create_user(self, email, username, password, **extra_fields):
         if not username:
-            raise ValueError('Поле Логи не может быть пустым!')
+            raise ValueError('Поле Логин не может быть пустым!')
         if not email:
             raise ValueError('Поле Почта не может быть пустым!')
         email = self.normalize_email(email)
@@ -57,9 +57,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
-        ordering = ('-id',)
 
     def __str__(self):
         return self.username
@@ -85,11 +85,8 @@ class Subscribe(models.Model):
 
     class Meta:
         constraints = [
-            models.UniqueConstraint(
-                fields=('user', 'author'),
-                name='unique_follow'
-            )
-        ]
+            models.UniqueConstraint(fields=('user', 'author'),
+                                    name='unique_follow')]
         verbose_name_plural = 'Подписки'
 
     def __str__(self):
