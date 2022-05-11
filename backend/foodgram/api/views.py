@@ -8,12 +8,13 @@ from djoser.views import UserViewSet
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 
-from recipes.models import (Favorite, Ingredient, Recipe, Tag)
+from recipes.models import (Favorite, Ingredient, Recipe, Tag, ShoppingCart)
 from users.models import User, Subscribe
 # from .filters import IngredientSearchFilter, RecipeFilters
 from .serializers import (RegistrationUserSerializer, FavoriteSerializer,
                           IngredientSerializer, RecipeSerializer,
-                          TagSerializer, SubscribeSerializer)
+                          TagSerializer, SubscribeSerializer,
+                          ShoppingCartSerializer)
 
 
 class CreateUserView(UserViewSet):
@@ -86,21 +87,48 @@ class IngredientViewSet(viewsets.ModelViewSet):
     search_fields = ['^name', ]
 
 
-class FavoriteViewSet(viewsets.ModelViewSet):
-    queryset = Favorite.objects.all()
-    serializer_class = FavoriteSerializer
+class BaseShoppingCartFavoriteViewSet(viewsets.ModelViewSet):
+    """
+    Обработка моделей корзины и избранных рецептов.
+    """
+    permission_classes = [permissions.IsAuthenticated]
 
     def create(self, request, *args, **kwargs):
+        """
+        Функция создания модели корзины или избранных рецептов.
+        """
         recipe_id = self.kwargs.get('recipe_id')
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        Favorite.objects.create(user=self.request.user, recipe=recipe)
+        self.model.objects.create(user=self.request.user, recipe=recipe)
         return Response(status=HTTPStatus.CREATED)
 
     def delete(self, request, *args, **kwargs):
+        """
+        Функция удаления объектов в модели корзины или избранных рецептов.
+        """
         recipe_id = self.kwargs.get('recipe_id')
         recipe = get_object_or_404(Recipe, id=recipe_id)
-        get_object_or_404(Favorite, user=self.request.user, recipe=recipe).delete()
+        get_object_or_404(Favorite, user=self.request.user,
+                          recipe=recipe).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
+
+
+class ShoppingCartViewSet(BaseShoppingCartFavoriteViewSet):
+    """
+    Обработка модели корзины.
+    """
+    serializer_class = ShoppingCartSerializer
+    queryset = ShoppingCart.objects.all()
+    model = ShoppingCart
+
+
+class FavoriteViewSet(BaseShoppingCartFavoriteViewSet):
+    """
+    Обработка модели избранных рецептов.
+    """
+    serializer_class = FavoriteSerializer
+    queryset = Favorite.objects.all()
+    model = Favorite
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):

@@ -137,3 +137,12 @@ class IngredientInRecipeSerializerPost(serializers.ModelSerializer):
     class Meta:
         model = IngredientInRecipe
         fields = ('id', 'amount')
+
+
+class ShoppingCartSerializer(serializers.Serializer):
+    """
+    Сериализатор корзины.
+    """
+    id = serializers.IntegerField()
+    title = serializers.CharField()
+    cooking_time = serializers.IntegerField()

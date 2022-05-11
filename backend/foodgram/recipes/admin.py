@@ -1,7 +1,8 @@
 from django.contrib import admin
 
 from users.models import User
-from .models import (Ingredient, Recipe, Favorite)
+from .models import (Ingredient, Recipe, Favorite, Tag, ShoppingCart,
+                     IngredientInRecipe, TagRecipe)
 
 
 class UserAdmin(admin.ModelAdmin):
@@ -21,6 +22,16 @@ class IngredientAdmin(admin.ModelAdmin):
     list_filter = ('title',)
 
 
+class TagRecipeInLine(admin.TabularInline):
+    model = TagRecipe
+    extra = 0
+
+
+class IngredientInRecipeInLine(admin.TabularInline):
+    model = IngredientInRecipe
+    extra = 0
+
+
 class RecipeAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'author', 'count_all_in_favorite')
     list_filter = ('title', 'author', 'tags')
@@ -34,6 +45,20 @@ class RecipeAdmin(admin.ModelAdmin):
     count_all_in_favorite.description = 'Число добавлений в избранное.'
 
 
+class TagAdmin(admin.ModelAdmin):
+    list_display = ('title', 'color', 'slug')
+    search_fields = ('title',)
+    empty_value_display = '-пусто-'
+
+
+class ShoppingCartAdmin(admin.ModelAdmin):
+    list_displays = ('user',)
+    search_fields = ('user',)
+    empty_value_display = '-пусто-'
+
+
 admin.site.register(User, UserAdmin)
 admin.site.register(Ingredient, IngredientAdmin)
 admin.site.register(Recipe, RecipeAdmin)
+admin.site.register(Tag, TagAdmin)
+admin.site.register(ShoppingCart, ShoppingCartAdmin)
