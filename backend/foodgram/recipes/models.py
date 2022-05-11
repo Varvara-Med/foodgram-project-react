@@ -1,4 +1,4 @@
-from colorfield.fields import ColorField
+# from colorfield.fields import ColorField
 from django.db import models
 
 from users.models import User
@@ -13,8 +13,8 @@ class Tag(models.Model):
         max_length=50,
         unique=True,
     )
-    color = ColorField(
-        format='hex',
+    color = models.CharField(
+        max_length=15,
         verbose_name='Цвет'
     )
     slug = models.SlugField(
@@ -128,6 +128,8 @@ class Favorite(models.Model):
         Recipe,
         verbose_name='Рецепт',
         on_delete=models.DO_NOTHING,
+        blank=True,
+        null=True,
     )
 
     class Meta:
