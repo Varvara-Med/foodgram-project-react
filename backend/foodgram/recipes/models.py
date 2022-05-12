@@ -14,8 +14,9 @@ class Tag(models.Model):
         unique=True,
     )
     color = models.CharField(
-        max_length=15,
-        verbose_name='Цвет'
+        max_length=7,
+        verbose_name='Цвет',
+        unique=True,
     )
     slug = models.SlugField(
         max_length=200,
@@ -139,6 +140,35 @@ class Favorite(models.Model):
 
     def __str__(self):
         return f'{self.user} likes {self.recipe}'
+
+
+class Subscribe(models.Model):
+    """
+    Модель подписки на автора.
+    """
+    user = models.ForeignKey(
+        User,
+        verbose_name='Пользователь',
+        related_name='Follower',
+        on_delete=models.CASCADE
+    )
+    following = models.ForeignKey(
+        User,
+        verbose_name='Автор',
+        related_name='Following',
+        on_delete=models.CASCADE
+    )
+
+    class MEta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        constraints = [models.UniqueConstraint(fields=['user', 'following'],
+                       name='unique_subscribe')]
+    
+    def __str__(self):
+        return f'{self.user} {self.following}'
+
+
 
 
 class IngredientInRecipe(models.Model):

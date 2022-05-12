@@ -11,7 +11,8 @@ from rest_framework.response import Response
 from recipes.models import (Favorite, Ingredient, Recipe, Tag, ShoppingCart)
 from users.models import User, Subscribe
 # from .filters import IngredientSearchFilter, RecipeFilters
-from .serializers import (RegistrationUserSerializer, FavoriteSerializer,
+from .serializers import (RecipeSerializerPost, RegistrationUserSerializer,
+                          FavoriteSerializer, RecipeShortFieldSerializer,
                           IngredientSerializer, RecipeSerializer,
                           TagSerializer, SubscribeSerializer,
                           ShoppingCartSerializer)
@@ -21,10 +22,8 @@ class CreateUserView(UserViewSet):
     """
     Обработка модели пользователя.
     """
+    queryset = User.objects.all()
     serializer_class = RegistrationUserSerializer
-
-    def get_queryset(self):
-        return User.objects.all()
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
@@ -36,7 +35,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return get_list_or_404(User, following__user=self.request.user)
 
-    def create_subscribe(self, request, *args, **kwargs):
+    def create(self, request, *args, **kwargs):
         """
         Создание подписки.
         """
@@ -46,7 +45,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
             user=request.user, following=user)
         return Response(HTTPStatus.CREATED)
 
-    def delete_subscribe(self, request, *args, **kwargs):
+    def delete(self, request, *args, **kwargs):
         """
         Удаление подписки.
         """
@@ -68,10 +67,18 @@ class RecipeViewSet(viewsets.ModelViewSet):
     # filter_class = RecipeFilters
     # filter_backends = [DjangoFilterBackend, ]
 
+    def get_serializer_class(self):
+        """
+        Функция выбора сериализатора при разных запросах.
+        """
+        if self.request.method == 'GET':
+            return RecipeSerializer
+        return RecipeSerializerPost
+
     def perform_create(self, serializer):
         """
         Передаём данные автора при создании рецепта.
-            """
+        """
         serializer.save(author=self.request.user)
 
 
@@ -87,7 +94,7 @@ class IngredientViewSet(viewsets.ModelViewSet):
     search_fields = ['^name', ]
 
 
-class BaseShoppingCartFavoriteViewSet(viewsets.ModelViewSet):
+class CommonShoppingCartFavoriteViewSet(viewsets.ModelViewSet):
     """
     Обработка моделей корзины и избранных рецептов.
     """
@@ -113,7 +120,7 @@ class BaseShoppingCartFavoriteViewSet(viewsets.ModelViewSet):
         return Response(status=HTTPStatus.NO_CONTENT)
 
 
-class ShoppingCartViewSet(BaseShoppingCartFavoriteViewSet):
+class ShoppingCartViewSet(CommonShoppingCartFavoriteViewSet):
     """
     Обработка модели корзины.
     """
@@ -122,13 +129,28 @@ class ShoppingCartViewSet(BaseShoppingCartFavoriteViewSet):
     model = ShoppingCart
 
 
-class FavoriteViewSet(BaseShoppingCartFavoriteViewSet):
+class FavoriteViewSet(CommonShoppingCartFavoriteViewSet):
     """
     Обработка модели избранных рецептов.
     """
     serializer_class = FavoriteSerializer
     queryset = Favorite.objects.all()
     model = Favorite
+    http_method_names = ('post', 'delete')
+
+    def create(self, request, *args, **kwargs):
+        recipe_id = self.kwargs.get('recipe_id')
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        Favorite.objects.create(user=self.request.user, recipe=recipe)
+        serializer = RecipeShortFieldSerializer(recipe, many=False)
+        return Response(data=serializer.data, status=HTTPStatus.CREATED)
+
+    def delete(self, request, *args, **kwargs):
+        recipe_id = self.kwargs.get('recipe_id')
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        get_object_or_404(
+            Favorite, user=self.request.user, recipe=recipe).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
 
 
 class TagViewSet(viewsets.ReadOnlyModelViewSet):
