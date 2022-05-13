@@ -1,9 +1,7 @@
 from http import HTTPStatus
 
-# from django.http import HttpResponse
 from django.shortcuts import get_list_or_404, get_object_or_404
 # from django_filters.rest_framework import DjangoFilterBackend
-from djoser.views import UserViewSet
 # from reportlab.pdfbase import pdfmetrics
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
@@ -11,19 +9,19 @@ from rest_framework.response import Response
 from recipes.models import (Favorite, Ingredient, Recipe, Tag, ShoppingCart)
 from users.models import User, Subscribe
 # from .filters import IngredientSearchFilter, RecipeFilters
-from .serializers import (RecipeSerializerPost, RegistrationUserSerializer,
+from .serializers import (RecipeSerializerPost, UserSerializer,
                           FavoriteSerializer, RecipeShortFieldSerializer,
                           IngredientSerializer, RecipeSerializer,
                           TagSerializer, SubscribeSerializer,
                           ShoppingCartSerializer)
 
 
-class CreateUserView(UserViewSet):
+class UserViewSet(viewsets.ModelViewSet):
     """
     Обработка модели пользователя.
     """
     queryset = User.objects.all()
-    serializer_class = RegistrationUserSerializer
+    serializer_class = UserSerializer
 
 
 class SubscribeViewSet(viewsets.ModelViewSet):
