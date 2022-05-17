@@ -1,14 +1,14 @@
 from http import HTTPStatus
 
-from django.shortcuts import get_list_or_404, get_object_or_404
-# from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 # from reportlab.pdfbase import pdfmetrics
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 
 from recipes.models import (Favorite, Ingredient, Recipe, Tag, ShoppingCart)
 from users.models import User, Subscribe
-# from .filters import IngredientSearchFilter, RecipeFilters
+from .filters import RecipeFilter
 from .serializers import (RecipeSerializerPost, UserSerializer,
                           FavoriteSerializer, RecipeShortFieldSerializer,
                           IngredientSerializer, RecipeSerializer,
@@ -71,8 +71,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
     queryset = Recipe.objects.all()
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = RecipeSerializer
-    # filter_class = RecipeFilters
-    # filter_backends = [DjangoFilterBackend, ]
+    filter_class = RecipeFilter
+    filter_backends = [DjangoFilterBackend, ]
 
     def get_serializer_class(self):
         """

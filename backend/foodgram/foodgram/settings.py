@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'recipes.apps.RecipesConfig',
     'api.apps.ApiConfig',
     'users.apps.UsersConfig',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -127,7 +128,10 @@ REST_FRAMEWORK = {
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-    ]
+    ],
+    'DEFAULT_RENDERER_CLASSES': (
+        'rest_framework.renderers.JSONRenderer',
+        'rest_framework.renderers.BrowsableAPIRenderer',)
 }
 
 DJOSER = {

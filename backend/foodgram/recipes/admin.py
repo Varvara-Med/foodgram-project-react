@@ -33,6 +33,7 @@ class IngredientInRecipeInLine(admin.TabularInline):
 
 
 class RecipeAdmin(admin.ModelAdmin):
+    inlines = (IngredientInRecipeInLine, TagRecipeInLine,)
     list_display = ('id', 'title', 'author', 'count_all_in_favorite')
     list_filter = ('title', 'author', 'tags')
 
