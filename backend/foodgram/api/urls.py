@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 from rest_framework.routers import DefaultRouter
 
 from .views import (UserViewSet, IngredientViewSet, RecipeViewSet,
@@ -16,15 +16,18 @@ router.register(r'ingredients', IngredientViewSet, basename='ingredients')
 urlpatterns = [
      path('users/subscriptions/',
           SubscribeViewSet.as_view({'get': 'list'}), name='subscriptions'),
-     path('users/<users_id>/subscribe/',
-          SubscribeViewSet.as_view({'post': 'create', 'delete': 'delete'}),
-          name='subscribe'),
-     path('recipes/<recipes_id>/favorite/',
-          FavoriteViewSet.as_view({'post': 'create', 'delete': 'delete'}),
-          name='favorite'),
-     path('recipes/<recipes_id>/shopping_cart/',
-          ShoppingCartViewSet.as_view({'post': 'create', 'delete': 'delete'}),
-          name='shopping_cart'),
+     re_path(
+        r'users/(?P<author_id>\d+)/subscribe/',
+        SubscribeViewSet.as_view({'post': 'create', 'delete': 'delete'}),
+        name='to_subscribe'),
+     re_path(
+        r'recipes/(?P<recipe_id>\d+)/favorite/',
+        FavoriteViewSet.as_view({'post': 'create', 'delete': 'delete'}),
+        name='favorites'),
+     re_path(
+        r'recipes/(?P<recipe_id>\d+)/shopping_cart/',
+        ShoppingCartViewSet.as_view({'post': 'create', 'delete': 'delete'}),
+        name='shopping_cart'),
      path('', include('djoser.urls')),
      path('', include(router.urls)),
      path('auth/', include('djoser.urls.authtoken')),

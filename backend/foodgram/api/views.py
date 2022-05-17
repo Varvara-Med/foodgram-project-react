@@ -13,7 +13,7 @@ from .serializers import (RecipeSerializerPost, UserSerializer,
                           FavoriteSerializer, RecipeShortFieldSerializer,
                           IngredientSerializer, RecipeSerializer,
                           TagSerializer, SubscribeSerializer,
-                          ShoppingCartSerializer)
+                          ShoppingCartSerializer, RecipeCartSerializer)
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -29,30 +29,39 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     Обработка модели подписок.
     """
     serializer_class = SubscribeSerializer
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return get_list_or_404(User, following__user=self.request.user)
+        queryset = Subscribe.objects.filter(user=self.request.user)
+        return queryset
 
     def create(self, request, *args, **kwargs):
         """
         Создание подписки.
         """
-        user_id = self.kwargs.get('users_id')
-        user = get_object_or_404(User, id=user_id)
-        Subscribe.objects.create(
-            user=request.user, following=user)
-        return Response(HTTPStatus.CREATED)
+        author_id = self.kwargs.get('author_id')
+        author = get_object_or_404(User, id=author_id)
+        Subscribe.objects.create(author=author, user=self.request.user)
+        subscription = get_object_or_404(
+            Subscribe,
+            author=author,
+            user=self.request.user
+        )
+        serializer = SubscribeSerializer(subscription, many=False)
+        return Response(data=serializer.data, status=HTTPStatus.CREATED)
 
     def delete(self, request, *args, **kwargs):
         """
         Удаление подписки.
         """
-        user_id = request.user.id
-        author_id = self.kwargs.get('users_id')
-        subscribe = get_object_or_404(
-            Subscribe, user__id=user_id, following__id=author_id)
-        subscribe.delete()
-        return Response(HTTPStatus.NO_CONTENT)
+        author_id = self.kwargs.get('author_id')
+        author = get_object_or_404(User, id=author_id)
+        get_object_or_404(
+            Subscribe,
+            author=author,
+            user=self.request.user
+        ).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
 
 
 class RecipeViewSet(viewsets.ModelViewSet):
@@ -60,7 +69,7 @@ class RecipeViewSet(viewsets.ModelViewSet):
     Обработка моделей рецептов.
     """
     queryset = Recipe.objects.all()
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = RecipeSerializer
     # filter_class = RecipeFilters
     # filter_backends = [DjangoFilterBackend, ]
@@ -92,48 +101,36 @@ class IngredientViewSet(viewsets.ModelViewSet):
     search_fields = ['^name', ]
 
 
-class CommonShoppingCartFavoriteViewSet(viewsets.ModelViewSet):
-    """
-    Обработка моделей корзины и избранных рецептов.
-    """
-    permission_classes = [permissions.IsAuthenticated]
-
-    def create(self, request, *args, **kwargs):
-        """
-        Функция создания модели корзины или избранных рецептов.
-        """
-        recipe_id = self.kwargs.get('recipe_id')
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        self.model.objects.create(user=self.request.user, recipe=recipe)
-        return Response(status=HTTPStatus.CREATED)
-
-    def delete(self, request, *args, **kwargs):
-        """
-        Функция удаления объектов в модели корзины или избранных рецептов.
-        """
-        recipe_id = self.kwargs.get('recipe_id')
-        recipe = get_object_or_404(Recipe, id=recipe_id)
-        get_object_or_404(Favorite, user=self.request.user,
-                          recipe=recipe).delete()
-        return Response(status=HTTPStatus.NO_CONTENT)
-
-
-class ShoppingCartViewSet(CommonShoppingCartFavoriteViewSet):
+class ShoppingCartViewSet(viewsets.ModelViewSet):
     """
     Обработка модели корзины.
     """
     serializer_class = ShoppingCartSerializer
     queryset = ShoppingCart.objects.all()
-    model = ShoppingCart
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        recipe_id = self.kwargs.get('recipe_id')
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        ShoppingCart.objects.create(user=self.request.user, recipe=recipe)
+        serializer = RecipeCartSerializer(recipe, many=False)
+        return Response(data=serializer.data, status=HTTPStatus.CREATED)
+
+    def delete(self, request, *args, **kwargs):
+        recipe_id = self.kwargs.get('recipe_id')
+        recipe = get_object_or_404(Recipe, id=recipe_id)
+        get_object_or_404(
+            ShoppingCart,
+            user=self.request.user,
+            recipe=recipe
+        ).delete()
+        return Response(status=HTTPStatus.NO_CONTENT)
 
 
-class FavoriteViewSet(CommonShoppingCartFavoriteViewSet):
-    """
-    Обработка модели избранных рецептов.
-    """
-    serializer_class = FavoriteSerializer
+class FavoriteViewSet(viewsets.ModelViewSet):
     queryset = Favorite.objects.all()
-    model = Favorite
+    serializer_class = FavoriteSerializer
+    permission_classes = (permissions.IsAuthenticated,)
     http_method_names = ('post', 'delete')
 
     def create(self, request, *args, **kwargs):
@@ -147,7 +144,10 @@ class FavoriteViewSet(CommonShoppingCartFavoriteViewSet):
         recipe_id = self.kwargs.get('recipe_id')
         recipe = get_object_or_404(Recipe, id=recipe_id)
         get_object_or_404(
-            Favorite, user=self.request.user, recipe=recipe).delete()
+            Favorite,
+            user=self.request.user,
+            recipe=recipe
+        ).delete()
         return Response(status=HTTPStatus.NO_CONTENT)
 
 

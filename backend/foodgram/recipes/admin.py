@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from users.models import User
+from users.models import User, Subscribe
 from .models import (Ingredient, Recipe, Favorite, Tag, ShoppingCart,
                      IngredientInRecipe, TagRecipe)
 
@@ -16,7 +16,7 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('title', 'measure_unit')
+    list_display = ('title', 'measurement_unit')
     search_fields = ('name', )
     empty_value_display = '-пусто-'
     list_filter = ('title',)
@@ -52,14 +52,20 @@ class TagAdmin(admin.ModelAdmin):
 
 
 class ShoppingCartAdmin(admin.ModelAdmin):
-    list_display = ('user',)
+    list_display = ('user', 'recipe')
     search_fields = ('user',)
     empty_value_display = '-пусто-'
 
 
 class FavoriteAdmin(admin.ModelAdmin):
-    list_display = ('user', 'recipe')
-    search_fields = ('user', 'recipe')
+    list_display = ('id', 'user', 'recipe')
+    search_fields = ('user',)
+    empty_value_display = '-пусто-'
+
+
+class SubscribeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'author')
+    search_fields = ('user', 'author')
     empty_value_display = '-пусто-'
 
 
@@ -69,3 +75,4 @@ admin.site.register(Recipe, RecipeAdmin)
 admin.site.register(Tag, TagAdmin)
 admin.site.register(ShoppingCart, ShoppingCartAdmin)
 admin.site.register(Favorite, FavoriteAdmin)
+admin.site.register(Subscribe, SubscribeAdmin)
