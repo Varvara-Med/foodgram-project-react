@@ -1,11 +1,8 @@
-from django.forms import ValidationError
-
-from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
-
-from recipes.models import (Favorite, Ingredient, Recipe, Tag,
-                            IngredientInRecipe, TagRecipe, ShoppingCart)
-from users.models import User, Subscribe
+from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
+                            ShoppingCart, Tag, TagRecipe)
+from rest_framework import serializers
+from users.models import Subscribe, User
 
 
 class Base64ImageField(serializers.ImageField):
@@ -302,11 +299,17 @@ class SubscribeSerializer(serializers.ModelSerializer,
 
     def get_recipes(self, obj):
         """
-        Функция получения рецептов автора.
+        Функция получения количества рецептов
+        автора.
         """
-        recipes = Recipe.objects.filter(author=obj.author)
-        serializer = RecipeShortFieldSerializer(recipes, many=True)
-        return serializer.data
+        request = self.context.get('request')
+        if request.GET.get('recipes_limit'):
+            recipes_limit = int(request.GET.get('recipes_limit'))
+            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')[
+                :recipes_limit]
+        else:
+            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')
+        return RecipeShortFieldSerializer(queryset, many=True).data
 
 
 class ShoppingCartSerializer(serializers.Serializer):
