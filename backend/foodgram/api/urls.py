@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 
 from .views import (UserViewSet, IngredientViewSet, RecipeViewSet,
                     SubscribeViewSet, TagViewSet, FavoriteViewSet,
-                    ShoppingCartViewSet)
+                    ShoppingCartViewSet, DownloadShoppingCartViewSet)
 
 app_name = 'api'
 
@@ -28,6 +28,8 @@ urlpatterns = [
         r'recipes/(?P<recipe_id>\d+)/shopping_cart/',
         ShoppingCartViewSet.as_view({'post': 'create', 'delete': 'delete'}),
         name='shopping_cart'),
+     path('recipes/download_shopping_cart/',
+          DownloadShoppingCartViewSet.as_view(), name='download'),
      path('', include('djoser.urls')),
      path('', include(router.urls)),
      path('auth/', include('djoser.urls.authtoken')),

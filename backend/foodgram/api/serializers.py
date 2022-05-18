@@ -89,14 +89,16 @@ class ShoppingCartFavoriteRecipes(metaclass=serializers.SerializerMetaclass):
         """
         request = self.context.get('request')
         return(
-            Favorite.objects.filter(user=request.user, recipe__id=obj.id).exists()
+            Favorite.objects.filter(user=request.user,
+                                    recipe__id=obj.id).exists()
             and request.user.is_authenticated
         )
 
     def get_is_in_shopping_cart(self, obj):
         request = self.context.get('request')
         return(
-            ShoppingCart.objects.filter(user=request.user, recipe__id=obj.id).exists()
+            ShoppingCart.objects.filter(user=request.user,
+                                        recipe__id=obj.id).exists()
             and request.user.is_authenticated
         )
 
@@ -168,7 +170,8 @@ class RecipeSerializer(serializers.ModelSerializer,
     """
     author = UserSerializer(many=False)
     tags = TagSerializer(many=True)
-    ingredients = IngredientInRecipeSerializer(many=True, source='recipe_ingredient')
+    ingredients = IngredientInRecipeSerializer(many=True,
+                                               source='recipe_ingredient')
     is_in_shopping_cart = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
 
@@ -196,7 +199,8 @@ class RecipeSerializerPost(serializers.ModelSerializer,
     author = UserSerializer(read_only=True)
     tags = serializers.PrimaryKeyRelatedField(queryset=Tag.objects.all(),
                                               many=True)
-    ingredients = IngredientInRecipeShortSerializer(source='recipe_ingredient', many=True)
+    ingredients = IngredientInRecipeShortSerializer(source='recipe_ingredient',
+                                                    many=True)
     image = Base64ImageField(max_length=None, use_url=False,)
     is_in_shopping_cart = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
@@ -226,7 +230,9 @@ class RecipeSerializerPost(serializers.ModelSerializer,
             else:
                 IngredientInRecipe.objects.filter(recipe=recipe).delete()
                 recipe.delete()
-                raise serializers.ValidationError('Продукты не могут повторяться в рецепте!')
+                raise serializers.ValidationError(
+                    'Продукты не могут повторяться в рецепте!'
+                    )
         return recipe
 
     def create(self, validated_data):

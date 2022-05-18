@@ -1,12 +1,13 @@
 from http import HTTPStatus
-
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-# from reportlab.pdfbase import pdfmetrics
+from rest_framework.views import APIView
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 
-from recipes.models import (Favorite, Ingredient, Recipe, Tag, ShoppingCart)
+from recipes.models import (Favorite, Ingredient, Recipe, Tag, ShoppingCart,
+                            IngredientInRecipe)
 from users.models import User, Subscribe
 from .filters import RecipeFilter
 from .serializers import (RecipeSerializerPost, UserSerializer,
@@ -96,7 +97,6 @@ class IngredientViewSet(viewsets.ModelViewSet):
     queryset = Ingredient.objects.all()
     permission_classes = [permissions.AllowAny]
     serializer_class = IngredientSerializer
-    # filter_backends = (DjangoFilterBackend, IngredientSearchFilter)
     pagination_class = None
     search_fields = ['^name', ]
 
@@ -158,3 +158,29 @@ class TagViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
     paginationa_class = None
+
+
+class DownloadShoppingCartViewSet(APIView):
+    def get(self, request):
+        user = request.user
+        shopping_carts = ShoppingCart.objects.filter(user=user)
+        recipes = [cart.recipe for cart in shopping_carts]
+        cart_dict = {}
+        for recipe in recipes:
+            for ingredient in recipe.ingredients.all():
+                amount = get_object_or_404(IngredientInRecipe,
+                                           recipe=recipe,
+                                           ingredient=ingredient).amount
+                if ingredient.title not in cart_dict:
+                    cart_dict[ingredient.title] = amount
+                else:
+                    cart_dict[ingredient.title] += amount
+        content = ''
+        for item in cart_dict:
+            measurement_unit = get_object_or_404(Ingredient,
+                                                 title=item).measurement_unit
+            content += f'{item} -- {cart_dict[item]} {measurement_unit}\n'
+        response = HttpResponse(content,
+                                content_type='text/plain,charset=utf8')
+        response['Content-Disposition'] = 'attachment; filename="cart.txt"'
+        return response
