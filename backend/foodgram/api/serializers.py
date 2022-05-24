@@ -1,7 +1,9 @@
 from django.contrib.auth.hashers import make_password
+
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag, TagRecipe)
 from rest_framework import serializers
+
 from users.models import Subscribe, User
 
 
@@ -14,8 +16,9 @@ class Base64ImageField(serializers.ImageField):
         import base64
         import uuid
 
-        import six
         from django.core.files.base import ContentFile
+
+        import six
 
         if isinstance(data, six.string_types):
             if 'data:' in data and ';base64,' in data:
@@ -263,8 +266,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
         return instance
 
 
-class SubscribeSerializer(serializers.ModelSerializer,
-                          RecipesCount):
+class SubscribeSerializer(serializers.ModelSerializer):
     """
     Сериализатор списка подписок.
     """
@@ -275,7 +277,10 @@ class SubscribeSerializer(serializers.ModelSerializer,
     first_name = serializers.ReadOnlyField(source='author.first_name')
     last_name = serializers.ReadOnlyField(source='author.last_name')
     recipes = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
+    recipes_count = serializers.IntegerField(
+        source='recipe_author.count',
+        read_only=True
+    )
 
     class Meta:
         model = Subscribe

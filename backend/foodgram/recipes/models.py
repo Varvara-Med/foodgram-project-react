@@ -1,4 +1,5 @@
 from django.db import models
+
 from users.models import User
 
 
@@ -73,7 +74,7 @@ class Recipe(models.Model):
         through='TagRecipe',
         verbose_name='тэги'
     )
-    cooking_time = models.IntegerField(
+    cooking_time = models.PositiveIntegerField(
         'Время приготовления',
         default=0,
         null=True,
@@ -129,6 +130,7 @@ class ShoppingCart(models.Model):
         Recipe,
         on_delete=models.CASCADE,
         verbose_name='Рецепты',
+        related_name='carts',
     )
 
     class Meta:

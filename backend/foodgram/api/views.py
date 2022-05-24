@@ -1,8 +1,11 @@
 from http import HTTPStatus
+from re import I
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
+
 from django_filters.rest_framework import DjangoFilterBackend
+
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
 from rest_framework import permissions, viewsets
@@ -34,7 +37,8 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        queryset = Subscribe.objects.filter(user=self.request.user)
+        queryset = Subscribe.objects.filter(User,
+                                            following__user=self.request.user)
         return queryset
 
     def create(self, request, *args, **kwargs):
@@ -166,7 +170,7 @@ class DownloadShoppingCartViewSet(APIView):
     def get(self, request):
         user = request.user
         shopping_carts = ShoppingCart.objects.filter(user=user)
-        recipes = [cart.recipe for cart in shopping_carts]
+        recipes = shopping_carts[i]
         cart_dict = {}
         for recipe in recipes:
             for ingredient in recipe.ingredients.all():
