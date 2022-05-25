@@ -76,7 +76,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         'Время приготовления',
-        default=0,
+        default=1,
         null=True,
     )
     pub_date = models.DateTimeField(
