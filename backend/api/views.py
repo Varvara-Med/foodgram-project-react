@@ -13,7 +13,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import Subscribe, User
 
-from .filters import RecipeFilter
+from .filters import IngredientFilter, RecipeFilter
 from .pagination import CustomPagination
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeCartSerializer, RecipeSerializer,
@@ -100,14 +100,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class IngredientViewSet(viewsets.ModelViewSet):
+class IngredientViewSet(ListRetriveViewSet):
     """
     Обработка модели продуктов.
     """
     queryset = Ingredient.objects.all()
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.AllowAny, ]
     serializer_class = IngredientSerializer
     pagination_class = None
+    filter_backends = (DjangoFilterBackend, IngredientFilter)
     search_fields = ['^name', ]
 
 
@@ -175,7 +176,7 @@ class DownloadShoppingCartViewSet(APIView):
     def get(self, request):
         user = request.user
         shopping_carts = ShoppingCart.objects.filter(user=user)
-        recipes = shopping_carts[i]
+        recipes = [cart.recipe for cart in shopping_carts]
         cart_dict = {}
         for recipe in recipes:
             for ingredient in recipe.ingredients.all():

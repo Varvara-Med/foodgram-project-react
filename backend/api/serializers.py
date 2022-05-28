@@ -133,17 +133,13 @@ class FavoriteSerializer(serializers.ModelSerializer):
 class IngredientSerializer(serializers.ModelSerializer):
     class Meta:
         model = Ingredient
-        fields = ('id', 'title', 'measurement_unit')
-        extra_kwargs = {'title': {'required': False},
-                        'measurement_unit': {'required': False}}
+        fields = '__all__'
 
 
 class TagSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tag
         fields = '__all__'
-        extra_kwargs = {'title': {'required': False},
-                        'slug': {'required': False}, }
 
 
 class IngredientInRecipeSerializer(serializers.ModelSerializer):
