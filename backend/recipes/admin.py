@@ -17,10 +17,10 @@ class UserAdmin(admin.ModelAdmin):
 
 
 class IngredientAdmin(admin.ModelAdmin):
-    list_display = ('title', 'measurement_unit')
+    list_display = ('name', 'measurement_unit')
     search_fields = ('name', )
     empty_value_display = '-пусто-'
-    list_filter = ('title',)
+    list_filter = ('name',)
 
 
 class TagRecipeInLine(admin.TabularInline):
@@ -35,8 +35,8 @@ class IngredientInRecipeInLine(admin.TabularInline):
 
 class RecipeAdmin(admin.ModelAdmin):
     inlines = (IngredientInRecipeInLine, TagRecipeInLine,)
-    list_display = ('id', 'title', 'author', 'count_all_in_favorite')
-    list_filter = ('title', 'author', 'tags')
+    list_display = ('id', 'name', 'author', 'count_all_in_favorite')
+    list_filter = ('name', 'author', 'tags')
 
     def count_all_in_favorite(self, obj):
         """
@@ -48,8 +48,8 @@ class RecipeAdmin(admin.ModelAdmin):
 
 
 class TagAdmin(admin.ModelAdmin):
-    list_display = ('title', 'color', 'slug')
-    search_fields = ('title',)
+    list_display = ('name', 'color', 'slug')
+    search_fields = ('name',)
     empty_value_display = '-пусто-'
 
 

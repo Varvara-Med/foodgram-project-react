@@ -183,14 +183,14 @@ class DownloadShoppingCartViewSet(APIView):
                 amount = get_object_or_404(IngredientInRecipe,
                                            recipe=recipe,
                                            ingredient=ingredient).amount
-                if ingredient.title not in cart_dict:
-                    cart_dict[ingredient.title] = amount
+                if ingredient.name not in cart_dict:
+                    cart_dict[ingredient.name] = amount
                 else:
-                    cart_dict[ingredient.title] += amount
+                    cart_dict[ingredient.name] += amount
         content = ''
         for item in cart_dict:
             measurement_unit = get_object_or_404(Ingredient,
-                                                 title=item).measurement_unit
+                                                 name=item).measurement_unit
             content += f'{item} -- {cart_dict[item]} {measurement_unit}\n'
         response = HttpResponse(content,
                                 content_type='text/plain,charset=utf8')

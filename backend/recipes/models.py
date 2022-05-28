@@ -7,7 +7,7 @@ class Tag(models.Model):
     """
     Модель тэгов.
     """
-    title = models.CharField(
+    name = models.CharField(
         'Название',
         max_length=50,
         unique=True,
@@ -28,11 +28,11 @@ class Tag(models.Model):
         verbose_name_plural = 'Тэги'
 
     def __str__(self):
-        return self.title[:15]
+        return self.name[:15]
 
 
 class Ingredient(models.Model):
-    title = models.CharField(
+    name = models.CharField(
         'Наименование',
         max_length=100,
     )
@@ -45,7 +45,7 @@ class Ingredient(models.Model):
         verbose_name_plural = 'Ингридиенты'
 
     def __str__(self):
-        return self.title[:15]
+        return self.name[:15]
 
 
 class Recipe(models.Model):
@@ -58,7 +58,7 @@ class Recipe(models.Model):
         on_delete=models.CASCADE,
         related_name='recipe_author'
     )
-    title = models.CharField(
+    name = models.CharField(
         verbose_name='Название',
         max_length=200,
     )
@@ -89,7 +89,7 @@ class Recipe(models.Model):
         verbose_name_plural = 'Рецепты'
 
     def __str__(self):
-        return self.title[:15]
+        return self.name[:15]
 
 
 class IngredientInRecipe(models.Model):
