@@ -8,7 +8,7 @@ class Tag(models.Model):
     Модель тэгов.
     """
     name = models.CharField(
-        'Название',
+        verbose_name='Название',
         max_length=50,
         unique=True,
     )
@@ -77,7 +77,6 @@ class Recipe(models.Model):
     cooking_time = models.PositiveIntegerField(
         'Время приготовления',
         default=1,
-        null=True,
     )
     pub_date = models.DateTimeField(
         auto_now_add=True,
