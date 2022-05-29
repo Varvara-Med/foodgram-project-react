@@ -169,7 +169,7 @@ class TagViewSet(ListRetriveViewSet):
     """
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
-    paginationa_class = None
+    pagination_class = None
     permission_classes = (permissions.AllowAny, )
 
 
