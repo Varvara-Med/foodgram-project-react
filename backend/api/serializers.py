@@ -82,10 +82,10 @@ class ShoppingCartFavoriteRecipes(metaclass=serializers.SerializerMetaclass):
     Класс определения избранных рецептов
     и продуктов корзины.
     """
-    is_favorite = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
 
-    def get_is_favorite(self, obj):
+    def get_is_favorited(self, obj):
         """
         Функция обработки параметра избранного.
         """
@@ -175,13 +175,13 @@ class RecipeSerializer(serializers.ModelSerializer,
     ingredients = IngredientInRecipeSerializer(many=True,
                                                source='recipe_ingredient')
     is_in_shopping_cart = serializers.SerializerMethodField()
-    is_favorite = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'author', 'ingredients', 'description',
                   'cooking_time', 'pub_date', 'image', 'tags',
-                  'is_favorite', 'is_in_shopping_cart')
+                  'is_favorited', 'is_in_shopping_cart')
 
 
 class RecipeShortFieldSerializer(serializers.ModelSerializer):
@@ -205,13 +205,13 @@ class RecipeSerializerPost(serializers.ModelSerializer,
                                                     many=True)
     image = Base64ImageField(max_length=None, use_url=False,)
     is_in_shopping_cart = serializers.SerializerMethodField()
-    is_favorite = serializers.SerializerMethodField()
+    is_favorited = serializers.SerializerMethodField()
 
     class Meta:
         model = Recipe
         fields = ('id', 'author', 'name', 'image', 'description',
                   'ingredients', 'is_in_shopping_cart', 'tags',
-                  'cooking_time', 'is_favorite')
+                  'cooking_time', 'is_favorited')
 
     def add_ingredients_and_tags(self, tags, ingredients, recipe):
         """
