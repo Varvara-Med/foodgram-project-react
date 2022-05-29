@@ -63,7 +63,7 @@ class Recipe(models.Model):
         max_length=200,
     )
     image = models.ImageField('Картинка',)
-    description = models.TextField('Описание',)
+    text = models.TextField('Описание',)
     ingredients = models.ManyToManyField(
         Ingredient,
         through='IngredientInRecipe',

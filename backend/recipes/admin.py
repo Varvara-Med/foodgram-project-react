@@ -44,7 +44,7 @@ class RecipeAdmin(admin.ModelAdmin):
         этого рецепта в избранное.
         """
         return Favorite.objects.filter(recipe=obj).count()
-    count_all_in_favorite.description = 'Число добавлений в избранное.'
+    count_all_in_favorite.text = 'Число добавлений в избранное.'
 
 
 class TagAdmin(admin.ModelAdmin):
