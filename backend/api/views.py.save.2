@@ -13,9 +13,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from users.models import Subscribe, User
 
-from .filters import IngredientFilter, RecipeFilter
+from .filters import RecipeFilter
 from .pagination import CustomPagination
-from .permissions import IsAuthorOrReadOnly
 from .serializers import (FavoriteSerializer, IngredientSerializer,
                           RecipeCartSerializer, RecipeSerializer,
                           RecipeSerializerPost, RecipeShortFieldSerializer,
@@ -78,12 +77,13 @@ class SubscribeViewSet(viewsets.ModelViewSet):
 class RecipeViewSet(viewsets.ModelViewSet):
     """
     Обработка моделей рецептов.
+
     """
     queryset = Recipe.objects.all()
-    permission_classes = (IsAuthorOrReadOnly, )
+    permission_classes = [permissions.IsAuthenticated]
     serializer_class = RecipeSerializer
     filter_class = RecipeFilter
-    filter_backends = (DjangoFilterBackend, )
+    filter_backends = [DjangoFilterBackend, ]
     pagination_class = CustomPagination
 
     def get_serializer_class(self):
@@ -101,15 +101,14 @@ class RecipeViewSet(viewsets.ModelViewSet):
         serializer.save(author=self.request.user)
 
 
-class IngredientViewSet(ListRetriveViewSet):
+class IngredientViewSet(viewsets.ModelViewSet):
     """
     Обработка модели продуктов.
     """
     queryset = Ingredient.objects.all()
-    permission_classes = [permissions.AllowAny, ]
+    permission_classes = [permissions.AllowAny]
     serializer_class = IngredientSerializer
     pagination_class = None
-    filter_backends = (DjangoFilterBackend, IngredientFilter)
     search_fields = ['^name', ]
 
 
@@ -184,14 +183,14 @@ class DownloadShoppingCartViewSet(APIView):
                 amount = get_object_or_404(IngredientInRecipe,
                                            recipe=recipe,
                                            ingredient=ingredient).amount
-                if ingredient.name not in cart_dict:
-                    cart_dict[ingredient.name] = amount
+                if ingredient.title not in cart_dict:
+                    cart_dict[ingredient.title] = amount
                 else:
-                    cart_dict[ingredient.name] += amount
+                    cart_dict[ingredient.title] += amount
         content = ''
         for item in cart_dict:
             measurement_unit = get_object_or_404(Ingredient,
-                                                 name=item).measurement_unit
+                                                 title=item).measurement_unit
             content += f'{item} -- {cart_dict[item]} {measurement_unit}\n'
         response = HttpResponse(content,
                                 content_type='text/plain,charset=utf8')
