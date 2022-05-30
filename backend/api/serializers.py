@@ -3,7 +3,6 @@ from django.contrib.auth.hashers import make_password
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag, TagRecipe)
 from rest_framework import serializers
-
 from users.models import Subscribe, User
 
 
@@ -233,8 +232,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
                 IngredientInRecipe.objects.filter(recipe=recipe).delete()
                 recipe.delete()
                 raise serializers.ValidationError(
-                    'Продукты не могут повторяться в рецепте!'
-                    )
+                    'Продукты не могут повторяться в рецепте!')
         return recipe
 
     def create(self, validated_data):

@@ -4,4 +4,3 @@ from rest_framework.viewsets import GenericViewSet
 
 class ListRetriveViewSet(ListModelMixin, RetrieveModelMixin, GenericViewSet):
     pass
-

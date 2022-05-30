@@ -7,6 +7,7 @@ class Tag(models.Model):
     """
     Модель тэгов.
     """
+
     name = models.CharField(
         verbose_name='Название',
         max_length=50,
@@ -52,6 +53,7 @@ class Recipe(models.Model):
     """
     Модель рецептов.
     """
+
     author = models.ForeignKey(
         User,
         verbose_name='автор',
@@ -95,6 +97,7 @@ class IngredientInRecipe(models.Model):
     """
     Модель продуктов в рецепте.
     """
+
     ingredient = models.ForeignKey(
         Ingredient,
         on_delete=models.CASCADE,
@@ -120,6 +123,7 @@ class ShoppingCart(models.Model):
     """
     Модель корзины.
     """
+
     user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
@@ -148,6 +152,7 @@ class Favorite(models.Model):
     """
     Модель избранных рецептов.
     """
+
     user = models.ForeignKey(
         User,
         verbose_name='Пользователь',
@@ -173,6 +178,7 @@ class TagRecipe(models.Model):
     """
     Модель тегов рецепта.
     """
+
     tag = models.ForeignKey(
         Tag,
         on_delete=models.CASCADE,
