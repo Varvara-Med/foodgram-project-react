@@ -6,7 +6,7 @@ from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from recipes.models import (Favorite, Ingredient, IngredientInRecipe, Recipe,
                             ShoppingCart, Tag)
-                            
+
 from rest_framework import permissions, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
