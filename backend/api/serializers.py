@@ -179,7 +179,7 @@ class RecipeSerializer(serializers.ModelSerializer,
 
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'ingredients', 'description',
+        fields = ('id', 'author', 'ingredients', 'text',
                   'cooking_time', 'pub_date', 'image', 'tags',
                   'is_favorited', 'is_in_shopping_cart')
 
@@ -209,7 +209,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
 
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'name', 'image', 'description',
+        fields = ('id', 'author', 'name', 'image', 'text',
                   'ingredients', 'is_in_shopping_cart', 'tags',
                   'cooking_time', 'is_favorited')
 
@@ -245,11 +245,11 @@ class RecipeSerializerPost(serializers.ModelSerializer,
         tags = validated_data.pop('tags')
         name = validated_data.get('name')
         image = validated_data.get('image')
-        description = validated_data.get('description')
+        text = validated_data.get('text')
         cooking_time = validated_data.get('cooking_time')
         ingredients = validated_data.pop('recipe_ingredient')
         recipe = Recipe.objects.create(author=author, name=name,
-                                       image=image, description=description, 
+                                       image=image, text=text,
                                        cooking_time=cooking_time,)
         recipe = self.add_ingredients_and_tags(tags, ingredients, recipe)
         return recipe
