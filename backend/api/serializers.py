@@ -179,7 +179,7 @@ class RecipeSerializer(serializers.ModelSerializer,
 
     class Meta:
         model = Recipe
-        fields = ('id', 'author', 'ingredients', 'text',
+        fields = ('id', 'author', 'name', 'ingredients', 'text',
                   'cooking_time', 'pub_date', 'image', 'tags',
                   'is_favorited', 'is_in_shopping_cart')
 
@@ -259,7 +259,7 @@ class RecipeSerializerPost(serializers.ModelSerializer,
         Функция редактирования рецепта.
         """
         tags = validated_data.pop('tags')
-        ingredients = validated_data.pop('ingredients')
+        ingredients = validated_data.pop('recipe_ingredient')
         TagRecipe.objects.filter(recipe=instance).delete()
         IngredientInRecipe.objects.filter(recipe=instance).delete()
         instance = self.add_ingredients_and_tags(tags, ingredients, instance)
