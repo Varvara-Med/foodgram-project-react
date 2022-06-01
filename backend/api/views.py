@@ -1,5 +1,6 @@
 from http import HTTPStatus
 
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 
@@ -41,9 +42,7 @@ class SubscribeViewSet(viewsets.ModelViewSet):
     pagination_class = CustomPagination
 
     def get_queryset(self):
-        queryset = Subscribe.objects.filter(User,
-                                            following__user=self.request.user)
-        return queryset
+        return Subscribe.objects.filter(user=self.request.user)
 
     def create(self, request, *args, **kwargs):
         """
@@ -52,6 +51,18 @@ class SubscribeViewSet(viewsets.ModelViewSet):
         author_id = self.kwargs.get('author_id')
         author = get_object_or_404(User, id=author_id)
         Subscribe.objects.create(author=author, user=self.request.user)
+        if author == request.user:
+            return Response(
+                'Нельзя подписаться на себя',
+                status=HTTPStatus.BAD_REQUEST
+            )
+        try:
+            Subscribe.objects.create(author=author, user=self.request.user)
+        except IntegrityError:
+            return Response(
+                'Вы уже подписаны на данного автора',
+                status=HTTPStatus.BAD_REQUEST
+            )
         subscription = get_object_or_404(
             Subscribe,
             author=author,

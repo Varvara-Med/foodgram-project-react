@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.core.validators import MinValueValidator
 from users.models import User
 
 
@@ -43,7 +43,7 @@ class Ingredient(models.Model):
     )
 
     class Meta:
-        verbose_name_plural = 'Ингридиенты'
+        verbose_name_plural = 'Ингредиенты'
 
     def __str__(self):
         return self.name[:15]
@@ -78,6 +78,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         'Время приготовления',
+        validators=[MinValueValidator(1), ],
         default=1,
     )
     pub_date = models.DateTimeField(
@@ -110,6 +111,7 @@ class IngredientInRecipe(models.Model):
         related_name='recipe_ingredient')
     amount = models.PositiveIntegerField(
         default=1,
+        validators=[MinValueValidator(1), ],
         verbose_name='Количество продукта')
 
     class Meta:
