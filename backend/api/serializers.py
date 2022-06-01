@@ -310,8 +310,8 @@ class SubscribeSerializer(serializers.ModelSerializer):
         Функция обработки параметра подписчиков.
         """
         request = self.context.get('request')
-        if request.user.is_anonymous:
-            return False
+        if not request:
+            return True
         return(
             Subscribe.objects.filter(
                 user=request.user,
