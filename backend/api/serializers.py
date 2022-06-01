@@ -54,6 +54,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'email', 'username', 'password',
                   'first_name', 'last_name', 'is_subscribed')
+        extra_kwargs = {'password': {'write_only': True}}
 
     def create(self, validated_data):
         validated_data['password'] = (
@@ -144,7 +145,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     """
     class Meta:
         model = Favorite
-        fields = ('__all__')
+        fields = '__all__'
 
 
 class IngredientSerializer(serializers.ModelSerializer):
