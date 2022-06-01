@@ -325,14 +325,15 @@ class SubscribeSerializer(serializers.ModelSerializer):
         Функция получения рецептов
         автора.
         """
-        request = self.context.get('request')
-        if request.GET.get('recipes_limit'):
-            recipes_limit = int(request.GET.get('recipes_limit'))
-            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')[
-                :recipes_limit]
-        else:
-            queryset = Recipe.objects.filter(author__id=obj.id).order_by('id')
-        return RecipeShortFieldSerializer(queryset, many=True).data
+        try:
+            recipes_limit = int(
+                self.context.get('request').query_params['recipes_limit']
+            )
+            recipes = Recipe.objects.filter(author=obj.author)[:recipes_limit]
+        except Exception:
+            recipes = Recipe.objects.filter(author=obj.author)
+        serializer = RecipeShortFieldSerializer(recipes, many=True,)
+        return serializer.data
 
 
 class ShoppingCartSerializer(serializers.Serializer):
