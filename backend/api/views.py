@@ -50,7 +50,6 @@ class SubscribeViewSet(viewsets.ModelViewSet):
         """
         author_id = self.kwargs.get('author_id')
         author = get_object_or_404(User, id=author_id)
-        Subscribe.objects.create(author=author, user=self.request.user)
         if author == request.user:
             return Response(
                 'Нельзя подписаться на себя',
